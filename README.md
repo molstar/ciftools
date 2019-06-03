@@ -22,6 +22,16 @@
     npm run build
     npm install -g
 
+## Publish
+
+## Prerelease
+    npm version prerelease
+    npm publish --tag next
+
+## Release
+    npm version minor # or patch, major
+    npm publish
+
 ## Contributing
 Just open an issue or make a pull request. All contributions are welcome.
 

@@ -1,6 +1,6 @@
 {
   "name": "ciftools",
-  "version": "0.1.0",
+  "version": "0.1.0-dev.0",
   "description": "Mol*/CIFTools - lightweight, efficient and extensible macromolecular data handling.",
   "homepage": "https://github.com/molstar/ciftools#readme",
   "repository": {
@@ -11,7 +11,7 @@
     "url": "https://github.com/molstar/ciftools/issues"
   },
   "scripts": {
-    "test": "npm run test",
+    "test": "npm run lint",
     "lint": "tslint src/**/*.ts",
     "build": "npm run build-tsc && npm run build-webpack",
     "build-tsc": "tsc -b",
@@ -19,13 +19,20 @@
     "watch": "concurrently --kill-others \"npm:watch-tsc\" \"npm:watch-webpack\"",
     "watch-tsc": "tsc -watch",
     "watch-webpack": "webpack -w --mode development --display minimal",
-    "prepublish": "npm run test && npm run build"
+    "preversion": "npm run test",
+    "postversion": "git push && git push --tags",
+    "prepublishOnly": "npm run test && npm run build"
   },
-  "main": "./build/dist/ciftools.js",
+  "main": "build/dist/ciftools.js",
   "bin": {
-    "cif2bcif": "./build/bin/cif2bcif.js",
-    "cifschema": "./build/bin/cifschema.js"
+    "cif2bcif": "build/bin/cif2bcif.js",
+    "cifschema": "build/bin/cifschema.js"
   },
+  "files": [
+    "build/dist/ciftools.js",
+    "build/bin/cif2bcif.js",
+    "build/bin/cifschema.js"
+  ],
   "author": "Mol* Contributors",
   "license": "MIT",
   "devDependencies": {
