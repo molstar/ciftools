@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+        <title>Mol*/CIFTools Basic Example</title>
+        <script type="text/javascript" src="../build/dist/ciftools.js"></script>
+	</head>
+	<body>
+		<div id="info"></div>
+        <script type="text/javascript">
+            fetch('//files.rcsb.org/download/1CRN.cif')
+                .then(function(response) { return response.text() })
+                .then(function(text) { return CIFTools.parseText(text).run() })
+                .then(function(parsed) {
+                    const info = document.getElementById('info')
+                    const block = parsed.result.blocks[0]
+                    const html = ['<h2>' + block.header + '<h2>', '<h3>Categories</h3>', '<ul>']
+                    for (let i = 0, il = block.categoryNames.length; i < il; ++i) {
+                        const c = block.categories[block.categoryNames[i]]
+                        const rowCount = c.rowCount === 0 ? 'empty'
+                            : c.rowCount === 1 ? '1 row'
+                            : (c.rowCount + ' rows')
+                        html.push('<li>', block.categoryNames[i] + ' (' + rowCount + ')', '<ul>')
+                        for (let j = 0, jl = c.fieldNames.length; j < jl; ++j) {
+                            html.push('<li>', c.fieldNames[j], '</li>')
+                        }
+                        html.push('</ul>', '</li>')
+                    }
+                    html.push('</ul>')
+                    info.innerHTML = html.join('\n')
+                })
+		</script>
+	</body>
+</html>
