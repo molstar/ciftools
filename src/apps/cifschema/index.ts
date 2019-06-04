@@ -128,7 +128,7 @@ parser.addArgument([ '--forceDicDownload', '-f' ], {
     help: 'Force download of dictionaries'
 });
 parser.addArgument([ '--moldataImportPath', '-mip' ], {
-    defaultValue: 'molstar/lib/mol-data/',
+    defaultValue: 'molstar/lib/mol-data',
     help: 'mol-data import path (for typescript target only)'
 });
 interface Args {
@@ -136,7 +136,7 @@ interface Args {
     preset: '' | 'mmCIF' | 'CCD' | 'BIRD'
     forceDicDownload: boolean
     fieldNamesPath: string
-    targetFormat: 'typescript' | 'json-internal'
+    targetFormat: 'typescript-molstar' | 'json-internal'
     out: string,
     moldataImportPath: string
 }
@@ -147,20 +147,20 @@ const FORCE_DIC_DOWNLOAD = args.forceDicDownload
 switch (args.preset) {
     case 'mmCIF':
         args.name = 'mmCIF'
-        args.fieldNamesPath = 'data/mmcif-field-names.csv'
+        args.fieldNamesPath = path.resolve(__dirname, '../../data/mmcif-field-names.csv')
         break
     case 'CCD':
         args.name = 'CCD'
-        args.fieldNamesPath = 'data/ccd-field-names.csv'
+        args.fieldNamesPath = path.resolve(__dirname, '../../data/ccd-field-names.csv')
         break
     case 'BIRD':
         args.name = 'BIRD'
-        args.fieldNamesPath = 'data/bird-field-names.csv'
+        args.fieldNamesPath = path.resolve(__dirname, '../../data/bird-field-names.csv')
         break
 }
 
 if (args.name) {
-    runGenerateSchema(args.name, args.fieldNamesPath, args.targetFormat === 'typescript', args.out, args.moldataImportPath).catch(e => {
+    runGenerateSchema(args.name, args.fieldNamesPath, args.targetFormat === 'typescript-molstar', args.out, args.moldataImportPath).catch(e => {
         console.error(e)
     })
 }

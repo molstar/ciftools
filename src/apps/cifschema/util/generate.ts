@@ -91,10 +91,25 @@ function doc(description: string, spacesCount: number) {
 export function generate (name: string, info: string, schema: Database, fields: Filter | undefined, moldataImportPath: string) {
     const codeLines: string[] = []
 
+    if (fields) {
+        Object.keys(fields).forEach(table => {
+            if (table in schema) {
+                const schemaTable = schema[table]
+                Object.keys(fields[table]).forEach(column => {
+                    if (!(column in schemaTable.columns)) {
+                        console.log(`filter field '${table}.${column}' not found in schema`)
+                    }
+                })
+            } else {
+                console.log(`filter category '${table}' not found in schema`)
+            }
+        })
+    }
+
     codeLines.push(`export const ${name}_Schema = {`)
     Object.keys(schema).forEach(table => {
         if (fields && !fields[table]) return
-        const { description, columns} = schema[table]
+        const { description, columns } = schema[table]
         if (description) codeLines.push(doc(description, 4))
         codeLines.push(`    ${safePropertyString(table)}: {`)
         Object.keys(columns).forEach(columnName => {

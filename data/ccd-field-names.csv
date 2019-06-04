@@ -9,7 +9,7 @@ chem_comp.pdbx_formal_charge
 chem_comp.pdbx_initial_date
 chem_comp.pdbx_modified_date
 chem_comp.pdbx_ambiguous_flag
-chem_comp.pdbx_release status
+chem_comp.pdbx_release_status
 chem_comp.pdbx_replaced_by
 chem_comp.pdbx_replaces
 chem_comp.formula_weight
@@ -54,7 +54,7 @@ pdbx_chem_comp_descriptor.program_version
 pdbx_chem_comp_descriptor.descriptor
 
 pdbx_chem_comp_identifier.comp_id
-pdbx_chem_comp_identifier.type 
+pdbx_chem_comp_identifier.type
 pdbx_chem_comp_identifier.program
 pdbx_chem_comp_identifier.program_version
 pdbx_chem_comp_identifier.identifier

@@ -11,7 +11,7 @@ pdbx_reference_molecule.formula_weight
 pdbx_reference_molecule.release_status
 pdbx_reference_molecule.replaces
 pdbx_reference_molecule.replaced_by
-pdbx_reference_molecule.compound_detail
+pdbx_reference_molecule.compound_details
 pdbx_reference_molecule.description
 pdbx_reference_molecule.representative_PDB_id_code
 
