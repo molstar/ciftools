@@ -48,7 +48,7 @@
   },
   "dependencies": {
     "argparse": "^1.0.10",
-    "molstar": "git+https://github.com/molstar/molstar-proto.git#8603ef1a9befdad745e0cc1240d30836ef873e96",
+    "molstar": "git+https://github.com/molstar/molstar-proto.git#18db901b9f72e1e9378237a0b63e56aa6ef7b787",
     "node-fetch": "^2.6.0"
   }
 }
