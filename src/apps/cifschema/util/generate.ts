@@ -7,7 +7,7 @@
 import { Database, Filter, Column } from './schema'
 import { indentString } from 'molstar/lib/mol-util/string'
 
-function header (name: string, info: string, importDatabasePath = 'mol-data/db') {
+function header (name: string, info: string, moldataImportPath: string) {
     return `/**
  * Copyright (c) 2017-2019 mol* contributors, licensed under MIT, See LICENSE file for more info.
  *
@@ -16,7 +16,7 @@ function header (name: string, info: string, importDatabasePath = 'mol-data/db')
  * @author molstar/ciftools package
  */
 
-import { Database, Column } from '${importDatabasePath}'
+import { Database, Column } from '${moldataImportPath}/db'
 
 import Schema = Column.Schema`
 }
@@ -88,7 +88,7 @@ function doc(description: string, spacesCount: number) {
     ].join('\n')
 }
 
-export function generate (name: string, info: string, schema: Database, fields?: Filter, importDatabasePath?: string) {
+export function generate (name: string, info: string, schema: Database, fields: Filter | undefined, moldataImportPath: string) {
     const codeLines: string[] = []
 
     codeLines.push(`export const ${name}_Schema = {`)
@@ -108,5 +108,5 @@ export function generate (name: string, info: string, schema: Database, fields?:
     })
     codeLines.push('}')
 
-    return `${header(name, info, importDatabasePath)}\n\n${getTypeShorthands(schema, fields)}\n\n${codeLines.join('\n')}\n${footer(name)}`
+    return `${header(name, info, moldataImportPath)}\n\n${getTypeShorthands(schema, fields)}\n\n${codeLines.join('\n')}\n${footer(name)}`
 }

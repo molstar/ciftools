@@ -1,7 +1,15 @@
 [![License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](./LICENSE)
+[![npm version](https://badge.fury.io/js/ciftools.svg)](https://www.npmjs.com/package/ciftools)
 [![Gitter](https://badges.gitter.im/molstar/Lobby.svg)](https://gitter.im/molstar/Lobby)
 
-## Building & Running
+## Usage
+
+### CIF schema generation
+    cifschema -o mmcif.ts -p mmCIF
+    cifschema -o ccd.ts -p CCD
+    cifschema -o bird.ts -p BIRD
+
+## Building
 
 ### Build:
     npm install
@@ -15,8 +23,6 @@
 
 ### Build for production:
     NODE_ENV=production npm run build
-
-## Development
 
 ### Scripts installation
     npm run build
