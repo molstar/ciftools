@@ -14,7 +14,7 @@
     "test": "npm run lint",
     "lint": "tslint src/**/*.ts",
     "build": "npm run build-tsc && npm run build-webpack",
-    "build-tsc": "tsc -b",
+    "build-tsc": "tsc",
     "build-webpack": "webpack --mode production",
     "watch": "concurrently --kill-others \"npm:watch-tsc\" \"npm:watch-webpack\"",
     "watch-tsc": "tsc -watch",
@@ -48,7 +48,7 @@
   },
   "dependencies": {
     "argparse": "^1.0.10",
-    "molstar": "git+https://github.com/molstar/molstar-proto.git#18db901b9f72e1e9378237a0b63e56aa6ef7b787",
+    "molstar": "git+https://github.com/molstar/molstar-proto.git#066431b40c7621bfce1af3e8fd64ac2058e516db",
     "node-fetch": "^2.6.0"
   }
 }

@@ -1,6 +1,5 @@
 {
     "compilerOptions": {
-        "composite": true,
         "target": "es5",
         "alwaysStrict": true,
         "noImplicitAny": true,
@@ -12,8 +11,7 @@
         // "downlevelIteration": true,
         "jsx": "react",
         "lib": [ "es6", "dom", "esnext.asynciterable", "es2016" ],
-        "outDir": "build",
-        "baseUrl": "src",
+        "outDir": "build/src",
     },
     "include": [ "src/**/*" ],
 }
