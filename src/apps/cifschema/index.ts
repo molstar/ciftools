@@ -10,30 +10,35 @@ import * as path from 'path'
 import fetch from 'node-fetch'
 
 import { parseCsv } from 'molstar/lib/mol-io/reader/csv/parser'
-import { CIF, CifFrame } from 'molstar/lib/mol-io/reader/cif'
+import { CifFrame, CifBlock } from 'molstar/lib/mol-io/reader/cif'
+import parseText from 'molstar/lib/mol-io/reader/cif/text/parser'
 import { generateSchema } from './util/cif-dic'
 import { generate } from './util/generate'
 import { Filter } from './util/schema'
 
+function getDicVersion(block: CifBlock) {
+    return block.categories.dictionary.getField('version')!.str(0)
+}
+
 async function runGenerateSchema(name: string, fieldNamesPath: string, typescript = false, out: string, moldbImportPath: string) {
     await ensureMmcifDicAvailable()
-    const mmcifDic = await CIF.parseText(fs.readFileSync(MMCIF_DIC_PATH, 'utf8')).run();
+    const mmcifDic = await parseText(fs.readFileSync(MMCIF_DIC_PATH, 'utf8')).run();
     if (mmcifDic.isError) throw mmcifDic
 
     await ensureIhmDicAvailable()
-    const ihmDic = await CIF.parseText(fs.readFileSync(IHM_DIC_PATH, 'utf8')).run();
+    const ihmDic = await parseText(fs.readFileSync(IHM_DIC_PATH, 'utf8')).run();
     if (ihmDic.isError) throw ihmDic
 
     await ensureCarbBranchDicAvailable()
-    const carbBranchDic = await CIF.parseText(fs.readFileSync(CARB_BRANCH_DIC_PATH, 'utf8')).run();
+    const carbBranchDic = await parseText(fs.readFileSync(CARB_BRANCH_DIC_PATH, 'utf8')).run();
     if (carbBranchDic.isError) throw carbBranchDic
 
     await ensureCarbCompDicAvailable()
-    const carbCompDic = await CIF.parseText(fs.readFileSync(CARB_COMP_DIC_PATH, 'utf8')).run();
+    const carbCompDic = await parseText(fs.readFileSync(CARB_COMP_DIC_PATH, 'utf8')).run();
     if (carbCompDic.isError) throw carbCompDic
 
-    const mmcifDicVersion = CIF.schema.dic(mmcifDic.result.blocks[0]).dictionary.version.value(0)
-    const ihmDicVersion = CIF.schema.dic(ihmDic.result.blocks[0]).dictionary.version.value(0)
+    const mmcifDicVersion = getDicVersion(mmcifDic.result.blocks[0])
+    const ihmDicVersion = getDicVersion(ihmDic.result.blocks[0])
     const carbDicVersion = 'draft'
     const version = `Dictionary versions: mmCIF ${mmcifDicVersion}, IHM ${ihmDicVersion}, CARB ${carbDicVersion}.`
 
