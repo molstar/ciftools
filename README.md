@@ -31,11 +31,11 @@
 ## Publish
 
 ## Prerelease
-    npm version prerelease
+    npm version prerelease # asumes the current version ends with '-dev.X'
     npm publish --tag next
 
 ## Release
-    npm version minor # or patch, major
+    npm version 0.X.0 # provide valid semver string
     npm publish
 
 ## Contributing
