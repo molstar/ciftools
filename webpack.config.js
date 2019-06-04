@@ -14,7 +14,20 @@ const sharedConfig = {
             'node_modules',
             path.resolve(__dirname, 'build/src/')
         ],
-    }
+    },
+}
+
+const sharedNodeConfig = {
+    ...sharedConfig,
+    target: 'node',
+    node: {
+        __dirname: false,
+        __filename: false,
+    },
+    plugins: [
+        ...sharedConfig.plugins,
+        new webpack.BannerPlugin({ banner: "#!/usr/bin/env node", raw: true, entryOnly: true }),
+    ],
 }
 
 module.exports = [
@@ -30,22 +43,12 @@ module.exports = [
         ...sharedConfig
     },
     {
-        ...sharedConfig,
-        target: 'node',
-        plugins: [
-            ...sharedConfig.plugins,
-            new webpack.BannerPlugin({ banner: "#!/usr/bin/env node", raw: true, entryOnly: true }),
-        ],
+        ...sharedNodeConfig,
         entry: path.resolve(__dirname, `build/src/apps/cif2bcif/index.js`),
         output: { filename: `cif2bcif.js`, path: path.resolve(__dirname, `build/bin`) },
     },
     {
-        ...sharedConfig,
-        target: 'node',
-        plugins: [
-            ...sharedConfig.plugins,
-            new webpack.BannerPlugin({ banner: "#!/usr/bin/env node", raw: true, entryOnly: true }),
-        ],
+        ...sharedNodeConfig,
         entry: path.resolve(__dirname, `build/src/apps/cifschema/index.js`),
         output: { filename: `cifschema.js`, path: path.resolve(__dirname, `build/bin`) },
     }
