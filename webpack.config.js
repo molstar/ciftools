@@ -24,6 +24,9 @@ const sharedNodeConfig = {
         __dirname: false,
         __filename: false,
     },
+    externals: {
+        argparse: 'require("argparse")',
+    },
     plugins: [
         ...sharedConfig.plugins,
         new webpack.BannerPlugin({ banner: "#!/usr/bin/env node", raw: true, entryOnly: true }),
