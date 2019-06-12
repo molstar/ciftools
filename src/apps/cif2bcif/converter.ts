@@ -4,76 +4,65 @@
  * @author David Sehnal <david.sehnal@gmail.com>
  */
 
-import { CIF, CifCategory, getCifFieldType, CifField } from 'molstar/lib/mol-io/reader/cif'
-import { CifWriter } from 'molstar/lib/mol-io/writer/cif'
-import * as fs from 'fs'
-import { Progress, Task, RuntimeContext } from 'molstar/lib/mol-task';
-import { classifyFloatArray, classifyIntArray } from 'molstar/lib/mol-io/common/binary-cif';
+import { CifWriter, EncodingStrategyHint } from 'molstar/lib/mol-io/writer/cif'
+import { Progress, Task } from 'molstar/lib/mol-task';
+import { createModelPropertiesProvider } from 'molstar/lib/servers/model/property-provider';
+import { PreprocessConfig } from 'molstar/lib/servers/model/preprocess/master';
+import { readStructureWrapper, resolveStructure } from 'molstar/lib/servers/model/server/structure-wrapper';
+import { CifExportContext, encode_mmCIF_categories } from 'molstar/lib/mol-model/structure';
+import { classifyCif } from 'molstar/lib/servers/model/preprocess/converter';
+import { Category } from 'molstar/lib/mol-io/writer/cif/encoder';
+import { EncodingProvider } from 'molstar/lib/mol-io/writer/cif/encoder/binary';
 
 function showProgress(p: Progress) {
     process.stdout.write(`\r${new Array(80).join(' ')}`);
     process.stdout.write(`\r${Progress.format(p)}`);
 }
 
-async function getCIF(ctx: RuntimeContext, path: string) {
-    const str = fs.readFileSync(path, 'utf8');
-    const parsed = await CIF.parseText(str).runInContext(ctx);
-    if (parsed.isError) {
-        throw new Error(parsed.toString());
-    }
-    return parsed.result;
-}
-
-function getCategoryInstanceProvider(cat: CifCategory, fields: CifWriter.Field[]): CifWriter.Category {
-    return {
-        name: cat.name,
-        instance: () => CifWriter.categoryInstance(fields, { data: cat, rowCount: cat.rowCount })
-    };
-}
-
-function classify(name: string, field: CifField): CifWriter.Field {
-    const type = getCifFieldType(field);
-    if (type['@type'] === 'str') {
-        return { name, type: CifWriter.Field.Type.Str, value: field.str, valueKind: field.valueKind };
-    } else if (type['@type'] === 'float') {
-        const encoder = classifyFloatArray(field.toFloatArray({ array: Float64Array }));
-        return CifWriter.Field.float(name, field.float, { valueKind: field.valueKind, encoder, typedArray: Float64Array });
-    } else {
-        const encoder = classifyIntArray(field.toIntArray({ array: Int32Array }));
-        return CifWriter.Field.int(name, field.int, { valueKind: field.valueKind, encoder, typedArray: Int32Array });
-    }
-}
-
-export default function convert(path: string, asText = false) {
-    return Task.create<Uint8Array>('BinaryCIF', async ctx => {
-        const cif = await getCIF(ctx, path);
-
-        const encoder = CifWriter.createEncoder({ binary: !asText, encoderName: 'mol*/ciftools cif2bcif' });
-
-        let maxProgress = 0;
-        for (const b of cif.blocks) {
-            maxProgress += b.categoryNames.length;
-            for (const c of b.categoryNames) maxProgress += b.categories[c].fieldNames.length;
-        }
-
-        let current = 0;
-        for (const b of cif.blocks) {
-            encoder.startDataBlock(b.header);
-            for (const c of b.categoryNames) {
-                const cat = b.categories[c];
-                const fields: CifWriter.Field[] = [];
-                for (const f of cat.fieldNames) {
-                    fields.push(classify(f, cat.getField(f)!))
-                    current++;
-                    if (ctx.shouldUpdate) await ctx.update({ message: 'Encoding...', current, max: maxProgress });
-                }
-
-                encoder.writeCategory(getCategoryInstanceProvider(b.categories[c], fields));
-                current++;
-                if (ctx.shouldUpdate) await ctx.update({ message: 'Encoding...', current, max: maxProgress });
+const config: PreprocessConfig = {
+    numProcesses: 1,
+    customProperties: {
+        sources: [
+            'wwpdb'
+        ],
+        params: {
+            'wwPDB': {
+                chemCompBondTablePath: './data/ccb.bcif'
             }
         }
+    }
+};
+
+export default function convert(path: string, asText = false, hints?: EncodingStrategyHint[], filter?: any) {
+    return Task.create<Uint8Array>('BinaryCIF', async ctx => {
+        const encodingProvider: EncodingProvider = hints ? CifWriter.createEncodingProviderFromJsonConfig(hints) :
+                { get: (c, f) => void 0 };
+        const propertyProvider = createModelPropertiesProvider(config.customProperties);
+        const input = await readStructureWrapper('entry', '_local_', path, propertyProvider);
+
+        const encoder = CifWriter.createEncoder({
+            binary: !asText,
+            encoderName: 'mol*/ciftools cif2bcif',
+            binaryAutoClassifyEncoding: true,
+            binaryEncodingPovider: encodingProvider
+        });
+
+        if (filter) {
+            encoder.setFilter(Category.filterOf(filter));
+        }
+
+        const categories = await classifyCif(input.cifFrame);
+        const structure = (await resolveStructure(input))!;
+        const exportCtx = CifExportContext.create(structure);
+
+        encoder.startDataBlock(input.cifFrame.header);
+        for (const cat of categories) {
+            encoder.writeCategory(cat);
+        }
+
         await ctx.update('Exporting...');
+        encode_mmCIF_categories(encoder, structure, { exportCtx });
+        encoder.encode();
         const ret = encoder.getData() as Uint8Array;
         await ctx.update('Done.\n');
         return ret;
