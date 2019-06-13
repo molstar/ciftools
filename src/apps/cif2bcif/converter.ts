@@ -33,12 +33,12 @@ const config: PreprocessConfig = {
     }
 };
 
-export default function convert(path: string, asText = false, hints?: EncodingStrategyHint[], filter?: any) {
+export default function convert(path: string, asText = false, nobonds: boolean, hints?: EncodingStrategyHint[], filter?: any) {
     return Task.create<Uint8Array>('BinaryCIF', async ctx => {
         const encodingProvider: EncodingProvider = hints ? CifWriter.createEncodingProviderFromJsonConfig(hints) :
                 { get: (c, f) => void 0 };
         const propertyProvider = createModelPropertiesProvider(config.customProperties);
-        const input = await readStructureWrapper('entry', '_local_', path, propertyProvider);
+        const input = await readStructureWrapper('entry', '_local_', path, nobonds ? void 0 : propertyProvider);
 
         const encoder = CifWriter.createEncoder({
             binary: !asText,
