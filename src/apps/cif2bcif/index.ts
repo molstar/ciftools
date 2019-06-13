@@ -10,15 +10,14 @@ import * as util from 'util'
 import * as fs from 'fs'
 import * as zlib from 'zlib'
 import convert from './converter'
-import { EncodingStrategyHint } from 'molstar/lib/mol-io/writer/cif'
 
 require('util.promisify').shim();
 
-async function process(srcPath: string, outPath: string, nobonds: boolean, configPath?: string, filterPath?: string) {
-    const config = configPath ? JSON.parse(fs.readFileSync(configPath, 'utf8')) as EncodingStrategyHint[] : void 0;
+async function process(srcPath: string, outPath: string, configPath?: string, filterPath?: string) {
+    const config = configPath ? JSON.parse(fs.readFileSync(configPath, 'utf8')) : void 0;
     const filter = filterPath ? JSON.parse(fs.readFileSync(filterPath, 'utf8')) : void 0;
 
-    const res = await convert(srcPath, false, nobonds, config, filter);
+    const res = await convert(srcPath, false, config, filter);
     await write(outPath, res);
 }
 
@@ -33,7 +32,7 @@ async function write(outPath: string, res: Uint8Array) {
 }
 
 function run(args: Args) {
-    process(args.src, args.out, args.nobonds, args.config, args.filter)
+    process(args.src, args.out, args.config, args.filter)
 }
 
 const parser = new argparse.ArgumentParser({
@@ -45,11 +44,6 @@ parser.addArgument([ 'src' ], {
 });
 parser.addArgument([ 'out' ], {
     help: 'Output BCIF path'
-});
-parser.addArgument([ '-n' ], {
-    action: 'storeTrue',
-    dest: 'nobonds',
-    help: 'Do not generate chem_comp_bond category'
 });
 parser.addArgument([ '-config' ], {
     help: 'Optional encoding strategy/precision config path',
@@ -65,7 +59,6 @@ interface Args {
     out: string
     config?: string
     filter?: string
-    nobonds: boolean
 }
 const args: Args = parser.parseArgs();
 
