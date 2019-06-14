@@ -45,11 +45,11 @@ parser.addArgument([ 'src' ], {
 parser.addArgument([ 'out' ], {
     help: 'Output BCIF path'
 });
-parser.addArgument([ '-config' ], {
+parser.addArgument([ '-c', '--config' ], {
     help: 'Optional encoding strategy/precision config path',
     required: false
 });
-parser.addArgument([ '-filter' ], {
+parser.addArgument([ '-f', '--filter' ], {
     help: 'Optional filter whitelist/blacklist path',
     required: false
 });
