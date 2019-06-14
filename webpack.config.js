@@ -26,6 +26,7 @@ const sharedNodeConfig = {
     },
     externals: {
         argparse: 'require("argparse")',
+        'util.promisify': 'require("util.promisify")',
     },
     plugins: [
         ...sharedConfig.plugins,
