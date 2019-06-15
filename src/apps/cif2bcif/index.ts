@@ -15,7 +15,7 @@ require('util.promisify').shim();
 
 async function process(srcPath: string, outPath: string, configPath?: string, filterPath?: string) {
     const config = configPath ? JSON.parse(fs.readFileSync(configPath, 'utf8')) : void 0;
-    const filter = filterPath ? JSON.parse(fs.readFileSync(filterPath, 'utf8')) : void 0;
+    const filter = filterPath ? fs.readFileSync(filterPath, 'utf8') : void 0;
 
     const res = await convert(srcPath, false, config, filter);
     await write(outPath, res);
