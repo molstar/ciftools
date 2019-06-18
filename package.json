@@ -40,7 +40,7 @@
     "@types/node": "^12.0.4",
     "@types/node-fetch": "^2.3.4",
     "concurrently": "^4.1.0",
-    "molstar": "^0.2.2",
+    "molstar": "^0.2.3",
     "node-fetch": "^2.6.0",
     "tslint": "^5.17.0",
     "typescript": "3.5.1",
