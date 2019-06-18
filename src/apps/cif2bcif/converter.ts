@@ -2,22 +2,48 @@
  * Copyright (c) 2017 mol* contributors, licensed under MIT, See LICENSE file for more info.
  *
  * @author David Sehnal <david.sehnal@gmail.com>
+ * @author Sebastian Bittrich <sebastian.bittrich@rcsb.org>
  */
 
-import { CIF, CifCategory, getCifFieldType, CifField } from 'molstar/lib/mol-io/reader/cif'
-import { CifWriter } from 'molstar/lib/mol-io/writer/cif'
+import { CIF, CifCategory, getCifFieldType, CifField, CifFile } from 'molstar/lib/mol-io/reader/cif'
+import { CifWriter, EncodingStrategyHint } from 'molstar/lib/mol-io/writer/cif'
+import * as util from 'util'
 import * as fs from 'fs'
+import * as zlib from 'zlib'
 import { Progress, Task, RuntimeContext } from 'molstar/lib/mol-task';
 import { classifyFloatArray, classifyIntArray } from 'molstar/lib/mol-io/common/binary-cif';
+import { EncodingProvider } from 'molstar/lib/mol-io/writer/cif/encoder/binary';
+import { Category } from 'molstar/lib/mol-io/writer/cif/encoder';
+import { ReaderResult } from 'molstar/lib/mol-io/reader/result';
 
 function showProgress(p: Progress) {
     process.stdout.write(`\r${new Array(80).join(' ')}`);
     process.stdout.write(`\r${Progress.format(p)}`);
 }
 
-async function getCIF(ctx: RuntimeContext, path: string) {
-    const str = fs.readFileSync(path, 'utf8');
-    const parsed = await CIF.parseText(str).runInContext(ctx);
+const readFileAsync = util.promisify(fs.readFile);
+const unzipAsync = util.promisify<zlib.InputType, Buffer>(zlib.unzip);
+
+async function readFile(ctx: RuntimeContext, filename: string): Promise<ReaderResult<CifFile>> {
+    const isGz = /\.gz$/i.test(filename);
+    if (filename.match(/\.bcif/)) {
+        let input = await readFileAsync(filename)
+        if (isGz) input = await unzipAsync(input);
+        return await CIF.parseBinary(new Uint8Array(input)).runInContext(ctx);
+    } else {
+        let str: string;
+        if (isGz) {
+            const data = await unzipAsync(await readFileAsync(filename));
+            str = data.toString('utf8');
+        } else {
+            str = await readFileAsync(filename, 'utf8');
+        }
+        return await CIF.parseText(str).runInContext(ctx);
+    }
+}
+
+async function getCIF(ctx: RuntimeContext, filename: string) {
+    const parsed = await readFile(ctx, filename);
     if (parsed.isError) {
         throw new Error(parsed.toString());
     }
@@ -44,11 +70,22 @@ function classify(name: string, field: CifField): CifWriter.Field {
     }
 }
 
-export default function convert(path: string, asText = false) {
+export default function convert(path: string, asText = false, hints?: EncodingStrategyHint[], filter?: string) {
     return Task.create<Uint8Array>('BinaryCIF', async ctx => {
+        const encodingProvider: EncodingProvider = hints ? CifWriter.createEncodingProviderFromJsonConfig(hints) :
+                { get: (c, f) => void 0 };
         const cif = await getCIF(ctx, path);
 
-        const encoder = CifWriter.createEncoder({ binary: !asText, encoderName: 'mol*/ciftools cif2bcif' });
+        const encoder = CifWriter.createEncoder({
+            binary: !asText,
+            encoderName: 'mol*/ciftools cif2bcif',
+            binaryAutoClassifyEncoding: true,
+            binaryEncodingPovider: encodingProvider
+        });
+
+        if (filter) {
+            encoder.setFilter(Category.filterOf(filter));
+        }
 
         let maxProgress = 0;
         for (const b of cif.blocks) {
