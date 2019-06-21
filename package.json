@@ -35,7 +35,7 @@
     "data/bird-field-names.csv",
     "data/ccd-field-names.csv",
     "data/mmcif-field-names.csv",
-    "data/mmtf-filter"
+    "data/mmtf-filter.csv"
   ],
   "author": "Mol* Contributors",
   "license": "MIT",
