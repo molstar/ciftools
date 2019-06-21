@@ -143,12 +143,12 @@ pdbx_branch_scheme.auth_mon_id
 pdbx_branch_scheme.auth_seq_num
 pdbx_branch_scheme.hetero
 
-pdbx_entity_descriptor.ordinal
-pdbx_entity_descriptor.entity_id
-pdbx_entity_descriptor.descriptor
-pdbx_entity_descriptor.type
-pdbx_entity_descriptor.program
-pdbx_entity_descriptor.program_version
+pdbx_entity_branch_descriptor.ordinal
+pdbx_entity_branch_descriptor.entity_id
+pdbx_entity_branch_descriptor.descriptor
+pdbx_entity_branch_descriptor.type
+pdbx_entity_branch_descriptor.program
+pdbx_entity_branch_descriptor.program_version
 
 pdbx_nonpoly_scheme.asym_id
 pdbx_nonpoly_scheme.entity_id
