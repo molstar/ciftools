@@ -66,6 +66,23 @@ cell.angle_gamma
 cell.Z_PDB
 cell.pdbx_unique_axis
 
+pdbx_database_related.db_name
+pdbx_database_related.details
+pdbx_database_related.db_id
+pdbx_database_related.content_type
+
+pdbx_database_status.status_code
+pdbx_database_status.status_code_sf
+pdbx_database_status.status_code_mr
+pdbx_database_status.entry_id
+pdbx_database_status.recvd_initial_deposition_date
+pdbx_database_status.SG_entry
+pdbx_database_status.deposit_site
+pdbx_database_status.process_site
+pdbx_database_status.status_code_cs
+pdbx_database_status.methods_development_category
+pdbx_database_status.pdb_format_compatible
+
 entity.id
 entity.type
 entity.src_method
