@@ -41,15 +41,15 @@
   "license": "MIT",
   "devDependencies": {
     "@types/argparse": "^1.0.36",
-    "@types/node": "^12.0.4",
-    "@types/node-fetch": "^2.3.4",
-    "concurrently": "^4.1.0",
-    "molstar": "^0.2.3",
+    "@types/node": "^12.7.4",
+    "@types/node-fetch": "^2.5.0",
+    "concurrently": "^4.1.2",
+    "molstar": "^0.2.8",
     "node-fetch": "^2.6.0",
-    "tslint": "^5.17.0",
-    "typescript": "3.5.1",
-    "webpack": "^4.32.2",
-    "webpack-cli": "^3.3.2"
+    "tslint": "^5.19.0",
+    "typescript": "3.6.2",
+    "webpack": "^4.39.3",
+    "webpack-cli": "^3.3.8"
   },
   "dependencies": {
     "argparse": "^1.0.10",
