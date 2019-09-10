@@ -148,6 +148,7 @@ const reVectorField = /\[[1-3]\]/
 const FORCE_INT_FIELDS = [
     '_atom_site.id',
     '_atom_site.auth_seq_id',
+    '_atom_site_anisotrop.id',
     '_pdbx_struct_mod_residue.auth_seq_id',
     '_struct_conf.beg_auth_seq_id',
     '_struct_conf.end_auth_seq_id',
