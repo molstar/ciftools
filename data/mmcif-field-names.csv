@@ -183,6 +183,10 @@ pdbx_entity_branch_descriptor.type
 pdbx_entity_branch_descriptor.program
 pdbx_entity_branch_descriptor.program_version
 
+pdbx_entity_nonpoly.entity_id
+pdbx_entity_nonpoly.name
+pdbx_entity_nonpoly.comp_id
+
 pdbx_nonpoly_scheme.asym_id
 pdbx_nonpoly_scheme.entity_id
 pdbx_nonpoly_scheme.mon_id
@@ -196,11 +200,42 @@ pdbx_nonpoly_scheme.pdb_ins_code
 
 entry.id
 
+audit_conform.dict_name
+audit_conform.dict_version
+audit_conform.dict_location
+
+database_2.database_id
+database_2.database_code
+
+audit_author.name
+audit_author.pdbx_ordinal
+audit_author.identifier_ORCID
+
+citation.id
+citation.title
+citation.journal_abbrev
+citation.journal_volume
+citation.page_first
+citation.page_last
+citation.year
+citation.journal_id_ASTM
+citation.country
+citation.journal_id_ISSN
+citation.journal_id_CSD
+citation.book_publisher
+citation.pdbx_database_id_PubMed
+citation.pdbx_database_id_DOI
+
+citation_author.citation_id
+citation_author.name
+citation_author.ordinal
+
 exptl.entry_id
 exptl.method
 
 struct.entry_id
 struct.title
+struct.pdbx_descriptor
 
 struct_asym.id
 struct_asym.pdbx_blank_PDB_chainid_flag
