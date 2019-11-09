@@ -15,12 +15,17 @@ import parseText from 'molstar/lib/mol-io/reader/cif/text/parser'
 import { generateSchema } from './util/cif-dic'
 import { generate } from './util/generate'
 import { Filter } from './util/schema'
+import { parseImportGet } from './util/helper'
 
 function getDicVersion(block: CifBlock) {
     return block.categories.dictionary.getField('version')!.str(0)
 }
 
-async function runGenerateSchema(name: string, fieldNamesPath: string, typescript = false, out: string, moldbImportPath: string) {
+function getDicNamespace(block: CifBlock) {
+    return block.categories.dictionary.getField('namespace')!.str(0)
+}
+
+async function runGenerateSchema(name: string, fieldNamesPath: string, typescript = false, out: string, moldbImportPath: string, addAliases: boolean) {
     await ensureMmcifDicAvailable()
     const mmcifDic = await parseText(fs.readFileSync(MMCIF_DIC_PATH, 'utf8')).run();
     if (mmcifDic.isError) throw mmcifDic
@@ -46,7 +51,51 @@ async function runGenerateSchema(name: string, fieldNamesPath: string, typescrip
     const schema = generateSchema(frames)
 
     const filter = fieldNamesPath ? await getFieldNamesFilter(fieldNamesPath) : undefined
-    const output = typescript ? generate(name, version, schema, filter, moldbImportPath) : JSON.stringify(schema, undefined, 4)
+    const output = typescript ? generate(name, version, schema, filter, moldbImportPath, addAliases) : JSON.stringify(schema, undefined, 4)
+
+    if (out) {
+        fs.writeFileSync(out, output)
+    } else {
+        console.log(output)
+    }
+}
+
+async function resolveImports(frames: CifFrame[], baseDir: string): Promise<Map<string, CifFrame[]>> {
+    const imports = new Map<string, CifFrame[]>()
+
+    for (const d of frames) {
+        if ('import' in d.categories) {
+            const importGet = parseImportGet(d.categories['import'].getField('get')!.str(0))
+            for (const g of importGet) {
+                const { file } = g
+                if (!file) continue
+                if (imports.has(file)) continue
+
+                const dic = await parseText(fs.readFileSync(path.join(baseDir, file), 'utf8')).run();
+                if (dic.isError) throw dic
+
+                imports.set(file, [...dic.result.blocks[0].saveFrames])
+            }
+        }
+    }
+
+    return imports
+}
+
+async function runGenerateSchemaDic(name: string, dicPath: string, fieldNamesPath: string, typescript = false, out: string, moldbImportPath: string, addAliases: boolean) {
+    const dic = await parseText(fs.readFileSync(dicPath, 'utf8')).run();
+    if (dic.isError) throw dic
+
+    const dicVersion = getDicVersion(dic.result.blocks[0])
+    const dicName = getDicNamespace(dic.result.blocks[0])
+    const version = `Dictionary versions: ${dicName} ${dicVersion}.`
+
+    const frames: CifFrame[] = [...dic.result.blocks[0].saveFrames]
+    const imports = await resolveImports(frames, path.dirname(dicPath))
+    const schema = generateSchema(frames, imports)
+
+    const filter = fieldNamesPath ? await getFieldNamesFilter(fieldNamesPath) : undefined
+    const output = typescript ? generate(name, version, schema, filter, moldbImportPath, addAliases) : JSON.stringify(schema, undefined, 4)
 
     if (out) {
         fs.writeFileSync(out, output)
@@ -124,6 +173,10 @@ parser.addArgument([ '--targetFormat', '-tf' ], {
     choices: ['typescript-molstar', 'json-internal'],
     help: 'Target format'
 });
+parser.addArgument([ '--dicPath', '-d' ], {
+    defaultValue: '',
+    help: 'Path to dictionary'
+});
 parser.addArgument([ '--fieldNamesPath', '-fn' ], {
     defaultValue: '',
     help: 'Field names to include'
@@ -136,14 +189,20 @@ parser.addArgument([ '--moldataImportPath', '-mip' ], {
     defaultValue: 'molstar/lib/mol-data',
     help: 'mol-data import path (for typescript target only)'
 });
+parser.addArgument([ '--addAliases', '-aa' ], {
+    action: 'storeTrue',
+    help: 'Add field name/path aliases'
+});
 interface Args {
     name: string
     preset: '' | 'mmCIF' | 'CCD' | 'BIRD'
     forceDicDownload: boolean
+    dicPath: string,
     fieldNamesPath: string
     targetFormat: 'typescript-molstar' | 'json-internal'
     out: string,
     moldataImportPath: string
+    addAliases: boolean
 }
 const args: Args = parser.parseArgs();
 
@@ -165,7 +224,14 @@ switch (args.preset) {
 }
 
 if (args.name) {
-    runGenerateSchema(args.name, args.fieldNamesPath, args.targetFormat === 'typescript-molstar', args.out, args.moldataImportPath).catch(e => {
-        console.error(e)
-    })
+    const typsescript = args.targetFormat === 'typescript-molstar'
+    if (args.dicPath) {
+        runGenerateSchemaDic(args.name, args.dicPath, args.fieldNamesPath, typsescript, args.out, args.moldataImportPath, args.addAliases).catch(e => {
+            console.error(e)
+        })
+    } else {
+        runGenerateSchema(args.name, args.fieldNamesPath, typsescript, args.out, args.moldataImportPath, args.addAliases).catch(e => {
+            console.error(e)
+        })
+    }
 }

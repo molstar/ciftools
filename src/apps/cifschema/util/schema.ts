@@ -4,7 +4,10 @@
  * @author Alexander Rose <alexander.rose@weirdbyte.de>
  */
 
-export interface Database { [ tableName: string ]: Table }
+export interface Database {
+    tables: { [ tableName: string ]: Table }
+    aliases: { [ path: string ]: string[] }
+}
 export interface Table {
     description: string
     key: Set<string>

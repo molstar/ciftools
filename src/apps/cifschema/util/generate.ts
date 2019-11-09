@@ -6,6 +6,7 @@
 
 import { Database, Filter, Column } from './schema'
 import { indentString } from 'molstar/lib/mol-util/string'
+import { FieldPath } from 'molstar/lib/mol-io/reader/cif/schema';
 
 function header (name: string, info: string, moldataImportPath: string) {
     return `/**
@@ -29,12 +30,12 @@ export interface ${name}_Database extends Database<${name}_Schema> {}`
 
 function getTypeShorthands(schema: Database, fields?: Filter) {
     const types = new Set<string>()
-    Object.keys(schema).forEach(table => {
+    Object.keys(schema.tables).forEach(table => {
         if (fields && !fields[table]) return
-        const { columns} = schema[table]
+        const { columns } = schema.tables[table]
         Object.keys(columns).forEach(columnName => {
             if (fields && !fields[table][columnName]) return
-            types.add(schema[table].columns[columnName].type)
+            types.add(schema.tables[table].columns[columnName].type)
         })
     })
     const shorthands: string[] = []
@@ -88,13 +89,13 @@ function doc(description: string, spacesCount: number) {
     ].join('\n')
 }
 
-export function generate (name: string, info: string, schema: Database, fields: Filter | undefined, moldataImportPath: string) {
+export function generate (name: string, info: string, schema: Database, fields: Filter | undefined, moldataImportPath: string, addAliases: boolean) {
     const codeLines: string[] = []
 
     if (fields) {
         Object.keys(fields).forEach(table => {
-            if (table in schema) {
-                const schemaTable = schema[table]
+            if (table in schema.tables) {
+                const schemaTable = schema.tables[table]
                 Object.keys(fields[table]).forEach(column => {
                     if (!(column in schemaTable.columns)) {
                         console.log(`filter field '${table}.${column}' not found in schema`)
@@ -107,9 +108,9 @@ export function generate (name: string, info: string, schema: Database, fields: 
     }
 
     codeLines.push(`export const ${name}_Schema = {`)
-    Object.keys(schema).forEach(table => {
+    Object.keys(schema.tables).forEach(table => {
         if (fields && !fields[table]) return
-        const { description, columns } = schema[table]
+        const { description, columns } = schema.tables[table]
         if (description) codeLines.push(doc(description, 4))
         codeLines.push(`    ${safePropertyString(table)}: {`)
         Object.keys(columns).forEach(columnName => {
@@ -122,6 +123,29 @@ export function generate (name: string, info: string, schema: Database, fields: 
         codeLines.push('    },')
     })
     codeLines.push('}')
+
+    if (addAliases) {
+        codeLines.push('')
+        codeLines.push(`export const ${name}_Aliases = {`)
+        Object.keys(schema.aliases).forEach(path => {
+            const [ table, columnName ] = path.split('.')
+            if (fields && !fields[table]) return
+            if (fields && !fields[table][columnName]) return
+
+            const filteredAliases = new Set<string>()
+            schema.aliases[path].forEach(p => {
+                if (!FieldPath.equal(p, path)) filteredAliases.add(FieldPath.canonical(p))
+            })
+
+            if (filteredAliases.size === 0) return
+            codeLines.push(`    ${safePropertyString(path)}: [`)
+            filteredAliases.forEach(alias => {
+                codeLines.push(`        '${alias}',`)
+            })
+            codeLines.push('    ],')
+        })
+        codeLines.push('}')
+    }
 
     return `${header(name, info, moldataImportPath)}\n\n${getTypeShorthands(schema, fields)}\n\n${codeLines.join('\n')}\n${footer(name)}`
 }
