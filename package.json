@@ -12,7 +12,7 @@
   },
   "scripts": {
     "test": "npm run lint",
-    "lint": "tslint src/**/*.ts",
+    "lint": "eslint src/**/*.ts",
     "build": "npm run build-tsc && npm run build-webpack",
     "build-tsc": "tsc",
     "build-webpack": "webpack --mode production",
@@ -34,25 +34,29 @@
     "build/bin/cifschema.js",
     "data/bird-field-names.csv",
     "data/ccd-field-names.csv",
+    "data/corecif-field-names.csv",
     "data/mmcif-field-names.csv",
     "data/mmtf-filter.csv"
   ],
   "author": "Mol* Contributors",
   "license": "MIT",
   "devDependencies": {
-    "@types/argparse": "^1.0.36",
-    "@types/node": "^12.11.5",
-    "@types/node-fetch": "^2.5.2",
-    "concurrently": "^5.0.0",
-    "molstar": "^0.3.5",
+    "@types/argparse": "^1.0.38",
+    "@types/node": "^13.7.1",
+    "@types/node-fetch": "^2.5.4",
+    "@typescript-eslint/eslint-plugin": "^2.19.2",
+    "@typescript-eslint/eslint-plugin-tslint": "^2.19.2",
+    "@typescript-eslint/parser": "^2.19.2",
+    "concurrently": "^5.1.0",
+    "eslint": "^6.8.0",
+    "molstar": "^0.4.5",
     "node-fetch": "^2.6.0",
-    "tslint": "^5.20.0",
-    "typescript": "3.6.4",
-    "webpack": "^4.41.2",
-    "webpack-cli": "^3.3.9"
+    "typescript": "3.7.5",
+    "webpack": "^4.41.6",
+    "webpack-cli": "^3.3.11"
   },
   "dependencies": {
     "argparse": "^1.0.10",
-    "util.promisify": "^1.0.0"
+    "util.promisify": "^1.0.1"
   }
 }
