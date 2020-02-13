@@ -53,16 +53,16 @@ async function runGenerateSchemaMmcif(name: string, fieldNamesPath: string, type
     await runGenerateSchema(name, version, schema, fieldNamesPath, typescript, out, moldbImportPath, addAliases)
 }
 
-async function runGenerateSchemaCorecif(name: string, fieldNamesPath: string, typescript = false, out: string, moldbImportPath: string, addAliases: boolean) {
-    await ensureCorecifDicAvailable()
+async function runGenerateSchemaCifCore(name: string, fieldNamesPath: string, typescript = false, out: string, moldbImportPath: string, addAliases: boolean) {
+    await ensureCifCoreDicAvailable()
     // TODO remove `replace` when the molstar cif parser supports triple qute strings
-    const corecifDic = await parseText(fs.readFileSync(CORECIF_DIC_PATH, 'utf8').replace(/'''/g, '\n;\n')).run();
-    if (corecifDic.isError) throw corecifDic
+    const cifCoreDic = await parseText(fs.readFileSync(CIF_CORE_DIC_PATH, 'utf8').replace(/'''/g, '\n;\n')).run();
+    if (cifCoreDic.isError) throw cifCoreDic
 
-    const corecifDicVersion = getDicVersion(corecifDic.result.blocks[0])
-    const version = `Dictionary versions: core CIF ${corecifDicVersion}.`
+    const cifCoreDicVersion = getDicVersion(cifCoreDic.result.blocks[0])
+    const version = `Dictionary versions: CifCore ${cifCoreDicVersion}.`
 
-    const frames: CifFrame[] = [...corecifDic.result.blocks[0].saveFrames]
+    const frames: CifFrame[] = [...cifCoreDic.result.blocks[0].saveFrames]
     const imports = await resolveImports(frames, DIC_DIR)
     const schema = generateSchema(frames, imports)
 
@@ -141,10 +141,10 @@ async function ensureMmcifDicAvailable() { await ensureDicAvailable(MMCIF_DIC_PA
 async function ensureIhmDicAvailable() { await ensureDicAvailable(IHM_DIC_PATH, IHM_DIC_URL) }
 async function ensureCarbBranchDicAvailable() { await ensureDicAvailable(CARB_BRANCH_DIC_PATH, CARB_BRANCH_DIC_URL) }
 async function ensureCarbCompDicAvailable() { await ensureDicAvailable(CARB_COMP_DIC_PATH, CARB_COMP_DIC_URL) }
-async function ensureCorecifDicAvailable() {
-    await ensureDicAvailable(CORECIF_DIC_PATH, CORECIF_DIC_URL)
-    await ensureDicAvailable(CORECIF_ENUM_CIF_PATH, CORECIF_ENUM_CIF_URL)
-    await ensureDicAvailable(CORECIF_ATTR_CIF_PATH, CORECIF_ATTR_CIF_URL)
+async function ensureCifCoreDicAvailable() {
+    await ensureDicAvailable(CIF_CORE_DIC_PATH, CIF_CORE_DIC_URL)
+    await ensureDicAvailable(CIF_CORE_ENUM_PATH, CIF_CORE_ENUM_URL)
+    await ensureDicAvailable(CIF_CORE_ATTR_PATH, CIF_CORE_ATTR_URL)
 }
 
 async function ensureDicAvailable(dicPath: string, dicUrl: string) {
@@ -170,12 +170,12 @@ const CARB_BRANCH_DIC_URL = 'https://raw.githubusercontent.com/pdbxmmcifwg/carbo
 const CARB_COMP_DIC_PATH = `${DIC_DIR}/chem_comp-extension.dic`
 const CARB_COMP_DIC_URL = 'https://raw.githubusercontent.com/pdbxmmcifwg/carbohydrate-extension/master/dict/chem_comp-extension.dic'
 
-const CORECIF_DIC_PATH = `${DIC_DIR}/cif_core.dic`
-const CORECIF_DIC_URL = 'https://raw.githubusercontent.com/COMCIFS/cif_core/master/cif_core.dic'
-const CORECIF_ENUM_CIF_PATH = `${DIC_DIR}/templ_enum.cif`
-const CORECIF_ENUM_CIF_URL = 'https://raw.githubusercontent.com/COMCIFS/cif_core/master/templ_enum.cif'
-const CORECIF_ATTR_CIF_PATH = `${DIC_DIR}/templ_attr.cif`
-const CORECIF_ATTR_CIF_URL = 'https://raw.githubusercontent.com/COMCIFS/cif_core/master/templ_attr.cif'
+const CIF_CORE_DIC_PATH = `${DIC_DIR}/cif_core.dic`
+const CIF_CORE_DIC_URL = 'https://raw.githubusercontent.com/COMCIFS/cif_core/master/cif_core.dic'
+const CIF_CORE_ENUM_PATH = `${DIC_DIR}/templ_enum.cif`
+const CIF_CORE_ENUM_URL = 'https://raw.githubusercontent.com/COMCIFS/cif_core/master/templ_enum.cif'
+const CIF_CORE_ATTR_PATH = `${DIC_DIR}/templ_attr.cif`
+const CIF_CORE_ATTR_URL = 'https://raw.githubusercontent.com/COMCIFS/cif_core/master/templ_attr.cif'
 
 const parser = new argparse.ArgumentParser({
     addHelp: true,
@@ -183,7 +183,7 @@ const parser = new argparse.ArgumentParser({
 });
 parser.addArgument([ '--preset', '-p' ], {
     defaultValue: '',
-    choices: ['', 'mmCIF', 'CCD', 'BIRD', 'coreCIF'],
+    choices: ['', 'mmCIF', 'CCD', 'BIRD', 'CifCore'],
     help: 'Preset name'
 });
 parser.addArgument([ '--name', '-n' ], {
@@ -220,9 +220,9 @@ parser.addArgument([ '--addAliases', '-aa' ], {
 });
 interface Args {
     name: string
-    preset: '' | 'mmCIF' | 'CCD' | 'BIRD' | 'coreCIF'
+    preset: '' | 'mmCIF' | 'CCD' | 'BIRD' | 'CifCore'
     forceDicDownload: boolean
-    dic: '' | 'mmCIF' | 'coreCIF'
+    dic: '' | 'mmCIF' | 'CifCore'
     dicPath: string,
     fieldNamesPath: string
     targetFormat: 'typescript-molstar' | 'json-internal'
@@ -250,10 +250,10 @@ switch (args.preset) {
         args.dic = 'mmCIF'
         args.fieldNamesPath = path.resolve(__dirname, '../../data/bird-field-names.csv')
         break
-    case 'coreCIF':
-        args.name = 'coreCIF'
-        args.dic = 'coreCIF'
-        args.fieldNamesPath = path.resolve(__dirname, '../../data/corecif-field-names.csv')
+    case 'CifCore':
+        args.name = 'CifCore'
+        args.dic = 'CifCore'
+        args.fieldNamesPath = path.resolve(__dirname, '../../data/cif-core-field-names.csv')
         break
 }
 
@@ -267,8 +267,8 @@ if (args.name) {
         runGenerateSchemaMmcif(args.name, args.fieldNamesPath, typescript, args.out, args.moldataImportPath, args.addAliases).catch(e => {
             console.error(e)
         })
-    } else if (args.dic === 'coreCIF') {
-        runGenerateSchemaCorecif(args.name, args.fieldNamesPath, typescript, args.out, args.moldataImportPath, args.addAliases).catch(e => {
+    } else if (args.dic === 'CifCore') {
+        runGenerateSchemaCifCore(args.name, args.fieldNamesPath, typescript, args.out, args.moldataImportPath, args.addAliases).catch(e => {
             console.error(e)
         })
     }
