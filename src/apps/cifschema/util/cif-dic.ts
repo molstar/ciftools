@@ -147,9 +147,6 @@ function getImportFrames(d: Data.CifFrame, imports: Imports) {
 /** get field from given or linked category */
 function getField(category: string, field: string, d: Data.CifFrame, imports: Imports, ctx: FrameData): Data.CifField|undefined {
     const { categories, links } = ctx
-
-    getImportFrames
-
     const cat = d.categories[category]
     if (cat) {
         return cat.getField(field)
@@ -282,7 +279,7 @@ const EXTRA_ENUM_VALUES: { [k: string]: string[] } = {
 
 }
 
-export function generateSchema(frames: CifFrame[], imports: Imports = new Map()) {
+export function generateSchema(frames: CifFrame[], imports: Imports = new Map()): Database {
 
     const tables: Database['tables'] = {}
     const aliases: Database['aliases'] = {}

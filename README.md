@@ -9,6 +9,8 @@
     cifschema -o ccd.ts -p CCD
     cifschema -o bird.ts -p BIRD
 
+    cifschema -o core-cif.ts -p coreCIF
+
 ## Building
 
 ### Build:

@@ -10,7 +10,7 @@ import { FieldPath } from 'molstar/lib/mol-io/reader/cif/schema';
 
 function header (name: string, info: string, moldataImportPath: string) {
     return `/**
- * Copyright (c) 2017-2019 mol* contributors, licensed under MIT, See LICENSE file for more info.
+ * Copyright (c) 2017-2020 mol* contributors, licensed under MIT, See LICENSE file for more info.
  *
  * Code-generated '${name}' schema file. ${info}
  *
