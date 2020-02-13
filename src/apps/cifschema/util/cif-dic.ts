@@ -60,7 +60,7 @@ export function getFieldType(type: string, description: string, values?: string[
         case 'int':
         case 'non_negative_int':
         case 'positive_int':
-           return values && values.length ? EnumCol(values, 'int', description) : IntCol(description)
+            return values && values.length ? EnumCol(values, 'int', description) : IntCol(description)
         case 'float':
             return FloatCol(description)
         case 'ec-type':
