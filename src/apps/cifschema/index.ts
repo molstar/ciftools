@@ -55,8 +55,7 @@ async function runGenerateSchemaMmcif(name: string, fieldNamesPath: string, type
 
 async function runGenerateSchemaCifCore(name: string, fieldNamesPath: string, typescript = false, out: string, moldbImportPath: string, addAliases: boolean) {
     await ensureCifCoreDicAvailable()
-    // TODO remove `replace` when the molstar cif parser supports triple qute strings
-    const cifCoreDic = await parseText(fs.readFileSync(CIF_CORE_DIC_PATH, 'utf8').replace(/'''/g, '\n;\n')).run();
+    const cifCoreDic = await parseText(fs.readFileSync(CIF_CORE_DIC_PATH, 'utf8')).run();
     if (cifCoreDic.isError) throw cifCoreDic
 
     const cifCoreDicVersion = getDicVersion(cifCoreDic.result.blocks[0])
