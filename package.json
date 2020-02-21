@@ -1,6 +1,6 @@
 {
   "name": "ciftools",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Mol*/CIFTools - lightweight, efficient and extensible macromolecular data handling.",
   "homepage": "https://github.com/molstar/ciftools#readme",
   "repository": {
