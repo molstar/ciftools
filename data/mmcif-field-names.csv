@@ -138,6 +138,16 @@ entity_src_nat.pdbx_end_seq_num
 entity_src_nat.pdbx_organism_scientific
 entity_src_nat.pdbx_plasmid_name
 
+pdbx_entity_instance_feature.ordinal
+pdbx_entity_instance_feature.feature_type
+pdbx_entity_instance_feature.details
+pdbx_entity_instance_feature.asym_id
+pdbx_entity_instance_feature.comp_id
+pdbx_entity_instance_feature.seq_num
+pdbx_entity_instance_feature.auth_asym_id
+pdbx_entity_instance_feature.auth_comp_id
+pdbx_entity_instance_feature.auth_seq_num
+
 pdbx_entity_src_syn.entity_id
 pdbx_entity_src_syn.pdbx_src_id
 pdbx_entity_src_syn.pdbx_beg_seq_num
