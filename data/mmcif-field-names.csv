@@ -175,6 +175,9 @@ pdbx_branch_scheme.auth_asym_id
 pdbx_branch_scheme.auth_mon_id
 pdbx_branch_scheme.auth_seq_num
 pdbx_branch_scheme.hetero
+pdbx_branch_scheme.pdb_mon_id
+pdbx_branch_scheme.pdb_asym_id
+pdbx_branch_scheme.pdb_seq_num
 
 pdbx_entity_branch_descriptor.ordinal
 pdbx_entity_branch_descriptor.entity_id
